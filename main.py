@@ -27,14 +27,6 @@ def modulus(a, b):
 def reminder(a, b):
     return D(str(a)) % D(str(b))
 
-def multiple(n,m):    
-    mod = modulus(n,m)
-    print(mod)
-    if modulus(n,m) == 0:       
-        return True
-    else:
-        return False
-
 def totalNumberOfLayers(a,b):
     return math.ceil(a/b)
 
@@ -58,9 +50,11 @@ def optimizeLayersLeft1_4(situtation,e4,e3,e2,e1):
         NT4 = 1
         while NT1 != NT4:
             t = t + 0.01
+            
+            #ERRADO, CORRIGIR AQUI QUANDO NÃO PASSA NT'S IGUAIS
             if t > ESP_MAX_CAMADA_ABGE:
-                N1,R1,N4,R4 = 0,0,0,0
-                return N1,R1,N4,R4,round(t,2)
+                N1,R1,N4,R4 = calculateNumberLayers(e1, e4, 0.15)
+                return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2)
 
             NT1 = totalNumberOfLayers(e1,t)
             NT4 = totalNumberOfLayers(e4,t)
@@ -101,5 +95,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    #print(multiple(0.24,0.12))
-    #print(modulus(0.24,0.12)==0)
