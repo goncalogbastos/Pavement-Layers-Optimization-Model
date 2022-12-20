@@ -47,6 +47,7 @@ def calculateNumberLayers(esp1,esp2,t):
 def optimizeLayersLeft1_4(situtation,e4,e3,e2,e1):
     if situtation == "1-4":
         t = ESP_MIN_CAMADA_ABGE
+        t_ = 0
         NT1 = 0
         NT4 = 1
 
@@ -59,7 +60,7 @@ def optimizeLayersLeft1_4(situtation,e4,e3,e2,e1):
                     NT1 = 0
                     NT4 = 1
                 else:                            
-                    return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2)            
+                    return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2),round(t_,2)           
             if t > ESP_MAX_CAMADA_ABGE:
                 break
             t = t + 0.01
@@ -80,19 +81,22 @@ def optimizeLayersLeft1_4(situtation,e4,e3,e2,e1):
                 if (ESP_MAX_CAMADA_ABGE < R1) | (R1 < ESP_MIN_CAMADA_ABGE) | (ESP_MAX_CAMADA_ABGE < R4) | (R4 < ESP_MIN_CAMADA_ABGE):
                     t = t + 0.01
                     if t > 0.3:
-                        N1,R1,N4,R4,t = 99,99,99,99,99
-                        run = False
-                    
+                        N1 = 1
+                        R1 = e1/2
+                        N4 = 1
+                        R4 = e4/2
+                        t = e1/2
+                        t_ = e4/2                        
+                        run = False                    
                 else:
                     run = False  
             
-        return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2)
+        return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2),round(t_,2)
     else:              
-        return 0,0,0,0,0
+        return 0,0,0,0,0,0
 
 
 def main():
-
     df = pd.read_excel("DATA.xlsx")
     df = df.fillna(0)
     df = df.apply(pd.to_numeric)
@@ -106,8 +110,8 @@ def main():
     i=0
     for km in points: 
         leftSituation = checkLeftSituation(km[0],km[1],km[2],km[3])
-        N1,R1,N4,R4,t = optimizeLayersLeft1_4(leftSituation,km[0],km[1],km[2],km[3])
-        solutions.append([float(N1),float(R1),float(N4),float(R4),t])
+        N1,R1,N4,R4,t,t_ = optimizeLayersLeft1_4(leftSituation,km[0],km[1],km[2],km[3])
+        solutions.append([float(N1),float(R1),float(N4),float(R4),t,t_])
         print(i)
         i += 1
         
