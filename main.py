@@ -1,13 +1,14 @@
 import pandas as pd
 import numpy as np
 import math
+import os
+import time
 from decimal import Decimal as D
 
 
 ESP_MIN_TOTAL_ABGE = 0.25
 ESP_MAX_CAMADA_ABGE = 0.30
 ESP_MIN_CAMADA_ABGE = 0.11
-MULTIPLES = [0.12, 0.15, 0.16, 0.18, 0.20]
 
 def checkRightSituation(d1,d2,d3,d4):
     if (d3==0) & (d2 == 0):
@@ -45,17 +46,11 @@ def calculateNumberLayers(esp1,esp2,t):
 
 def optimizeLayersLeft1_4(situtation,e4,e3,e2,e1):
     if situtation == "1-4":
-        t = 0.11
+        t = ESP_MIN_CAMADA_ABGE
         NT1 = 0
         NT4 = 1
-        while NT1 != NT4:
-            t = t + 0.01
-            
-            #ERRADO, CORRIGIR AQUI QUANDO NÃO PASSA NT'S IGUAIS
-            if t > ESP_MAX_CAMADA_ABGE:
-                N1,R1,N4,R4 = calculateNumberLayers(e1, e4, 0.15)
-                return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2)
 
+        while NT1 != NT4:            
             NT1 = totalNumberOfLayers(e1,t)
             NT4 = totalNumberOfLayers(e4,t)
             if NT1 == NT4:
@@ -63,12 +58,37 @@ def optimizeLayersLeft1_4(situtation,e4,e3,e2,e1):
                 if (R1 < D(str(ESP_MIN_CAMADA_ABGE))) | (R4 < D(str(ESP_MIN_CAMADA_ABGE))):
                     NT1 = 0
                     NT4 = 1
+                else:                            
+                    return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2)            
+            if t > ESP_MAX_CAMADA_ABGE:
+                break
+            t = t + 0.01
+
+        if t > ESP_MAX_CAMADA_ABGE:
+            print('*****************************')
+            t = ESP_MIN_CAMADA_ABGE
+            run = True
+            while run:
+                N1,R1,N4,R4 = calculateNumberLayers(e1, e4, t)
+                N1_ = N1 - 1
+                N4_ = N4 - 1
+                N1 = 1
+                N4 = 1
+                R1 = float(N1_)*t + float(R1)
+                R4 = float(N4_)*t + float(R4)
+
+                if (ESP_MAX_CAMADA_ABGE < R1) | (R1 < ESP_MIN_CAMADA_ABGE) | (ESP_MAX_CAMADA_ABGE < R4) | (R4 < ESP_MIN_CAMADA_ABGE):
+                    t = t + 0.01
+                    if t > 0.3:
+                        N1,R1,N4,R4,t = 99,99,99,99,99
+                        run = False
+                    
+                else:
+                    run = False  
             
-        N1,R1,N4,R4 = calculateNumberLayers(e1, e4, t)
         return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2)
-    else:
-        N1,R1,N4,R4,t = 0,0,0,0,0
-        return N1,R1,N4,R4,t
+    else:              
+        return 0,0,0,0,0
 
 
 def main():
@@ -83,14 +103,29 @@ def main():
         points.append(row_points)
 
     solutions = []
+    i=0
     for km in points: 
         leftSituation = checkLeftSituation(km[0],km[1],km[2],km[3])
         N1,R1,N4,R4,t = optimizeLayersLeft1_4(leftSituation,km[0],km[1],km[2],km[3])
         solutions.append([float(N1),float(R1),float(N4),float(R4),t])
+        print(i)
+        i += 1
+        
     
     sol_df = pd.DataFrame(solutions)
-    sol_df.to_excel('solutions.xlsx')
-        
+    try:
+        os.remove('solutions.xlsx')
+    except: 
+        pass
+
+    sol_df.to_excel('solutions.xlsx', index = False, header=False)
+'''
+
+def main():
+    N1,R1,N4,R4,t = optimizeLayersLeft1_4("1-4",0.25,0,0,0.33)
+    print(N1,R1,N4,R4,t)
+'''
+
 
 
 if __name__ == "__main__":
