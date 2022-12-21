@@ -1,7 +1,6 @@
 import pandas as pd
 import math
 import time
-import sys
 import os
 from decimal import Decimal as D
 
@@ -41,7 +40,7 @@ def readExcelData(file: str, df: pd.DataFrame):
         time.sleep(1)
         return points, kms
     except:
-        print(f"The file {file} must have the following headers: km, e4, e3, e2, e1, d1, d2, d3, d4. Please, rename the headers accordingly.")
+        print(f"The file {file} must have at least the following headers: km, e4, e3, e2, e1, d1, d2, d3, d4. Please, rename the headers accordingly.")
         exit()
 
 def exportSolutionsToExcel(solutions: list, kms: list):
@@ -75,8 +74,11 @@ def checkRightSituation(d1,d2,d3,d4):
 def checkLeftSituation(e4,e3,e2,e1):
     if ((e3==0) & (e2 == 0)) & ((e1 != 0) & (e4 != 0)):
         return "1-4"
-    else:
+    elif ((e3!=0) & (e2 != 0)) & ((e1 != 0) & (e4 != 0)):
         return "1-2-3-4"
+    else:
+        return "0-0-0-0"
+        
 
 def modulus(a, b):
     return D(str(a)) // D(str(b))
@@ -114,9 +116,13 @@ def calculateNonConstantLayers(e4,e3,e2,e1):
                 run = False
             else:
                 n += 1
+                print(n)
         return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2),round(t_,2)
+    else:
+        pass
 
-def convertLeftToFinalLayers(N1,R1,N4,R4,t,t_):
+def convertLeftTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_):
+
     P1_ABGE1 = P1_ABGE2 = P1_ABGE3 = P1_ABGE4 = 0
     P2_ABGE1 = P2_ABGE2 = P2_ABGE3 = P2_ABGE4 = 0
     P3_ABGE1 = P3_ABGE2 = P3_ABGE3 = P3_ABGE4 = 0
@@ -157,79 +163,173 @@ def convertLeftToFinalLayers(N1,R1,N4,R4,t,t_):
             pass
     layers = [P1_ABGE1, P1_ABGE2, P1_ABGE3, P1_ABGE4, P2_ABGE1, P2_ABGE2, P2_ABGE3, P2_ABGE4, P3_ABGE1, P3_ABGE2, P3_ABGE3, P3_ABGE4, P4_ABGE1, P4_ABGE2, P4_ABGE3, P4_ABGE4]
     return layers
+
+
+def convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,t_B,N3,R3,N4,R4,tC,t_D):
     
-        
-            
+    P1_ABGE1 = P1_ABGE2 = P1_ABGE3 = P1_ABGE4 = 0
+    P2_ABGE1 = P2_ABGE2 = P2_ABGE3 = P2_ABGE4 = 0
+    P3_ABGE1 = P3_ABGE2 = P3_ABGE3 = P3_ABGE4 = 0
+    P4_ABGE1 = P4_ABGE2 = P4_ABGE3 = P4_ABGE4 = 0
 
-def optimizeLeftLayers(situtation,e4,e3,e2,e1):
+    if t_B == 0:
+        if (N1 == 1) & (N2 == 1):
+            P1_ABGE1 = P2_ABGE1 = tA
+            P1_ABGE2 = R1
+            P2_ABGE2 = R2
+        elif (N1 == 2) & (N2 ==2):
+            P1_ABGE1 = P2_ABGE1 = P1_ABGE2 = P2_ABGE2 = tA
+            P1_ABGE3 = R1
+            P2_ABGE3 = R2
+        elif (N1 == 3) & (N2 ==3):
+            P1_ABGE1 = P2_ABGE1 = P1_ABGE2 = P2_ABGE2 = P1_ABGE3 = P2_ABGE3 = tA
+            P1_ABGE4 = R1
+            P2_ABGE4 = R2
+        else:
+            pass
+    else:
+        if (N1 == 1) & (N2 == 1):
+            P1_ABGE1 = tA
+            P4_ABGE1 = t_B
+            P1_ABGE2 = R1
+            P2_ABGE2 = R2
+        elif (N1 == 2) & (N2 ==2):
+            P1_ABGE1 = P1_ABGE2 = tA
+            P2_ABGE1 = P2_ABGE2 = t_B
+            P1_ABGE3 = R1
+            P2_ABGE3 = R2
+        elif (N1 == 3) & (N2 ==3):
+            P1_ABGE1 = P1_ABGE2 = P1_ABGE3 = tA
+            P2_ABGE1 = P2_ABGE2 = P2_ABGE3 = t_B
+            P1_ABGE4 = R1
+            P2_ABGE4 = R2
+        else:
+            pass
 
-    if situtation == "1-4":
-        t = ESP_MIN_CAMADA_ABGE
-        t_ = 0
-        NT1 = 0
-        NT4 = 1
+    if t_D == 0:
+        if (N3 == 1) & (N4 == 1):
+            P3_ABGE1 = P4_ABGE1 = tC
+            P3_ABGE2 = R3
+            P4_ABGE2 = R4
+        elif (N3 == 2) & (N4 ==2):
+            P3_ABGE1 = P4_ABGE1 = P3_ABGE2 = P4_ABGE2 = tC
+            P3_ABGE3 = R3
+            P4_ABGE3 = R4
+        elif (N3 == 3) & (N4 ==3):
+            P3_ABGE1 = P4_ABGE1 = P3_ABGE2 = P4_ABGE2 = P3_ABGE3 = P4_ABGE3 = tC
+            P3_ABGE4 = R3
+            P4_ABGE4 = R4
+        else:
+            pass
+    else:
+        if (N3 == 1) & (N4 == 1):
+            P3_ABGE1 = tC
+            P4_ABGE1 = t_D
+            P3_ABGE2 = R3
+            P4_ABGE2 = R4
+        elif (N3 == 2) & (N4 ==2):
+            P3_ABGE1 = P4_ABGE2 = tC
+            P3_ABGE1 = P4_ABGE2 = t_D
+            P3_ABGE3 = R3
+            P4_ABGE3 = R4
+        elif (N3 == 3) & (N4 ==3):
+            P3_ABGE1 = P3_ABGE2 = P3_ABGE3 = tC
+            P4_ABGE1 = P4_ABGE2 = P4_ABGE3 = t_D
+            P3_ABGE4 = R3
+            P4_ABGE4 = R4
+        else:
+            pass
 
-        while NT1 != NT4:            
-            NT1 = totalNumberOfLayers(e1,t)
-            NT4 = totalNumberOfLayers(e4,t)
-            if NT1 == NT4:
-                N1,R1,N4,R4 = calculateNumberLayers(e1, e4, t)
-                if (round(R1,2) < D(str(ESP_MIN_CAMADA_ABGE))) | (round(R4,2) < D(str(ESP_MIN_CAMADA_ABGE))):
-                    NT1 = 0
-                    NT4 = 1
-                else:                            
-                    return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2),round(t_,2)           
-            if t > ESP_MAX_CAMADA_ABGE:
-                break
-            t = t + 0.01
+    layers = [P1_ABGE1, P1_ABGE2, P1_ABGE3, P1_ABGE4, P2_ABGE1, P2_ABGE2, P2_ABGE3, P2_ABGE4, P3_ABGE1, P3_ABGE2, P3_ABGE3, P3_ABGE4, P4_ABGE1, P4_ABGE2, P4_ABGE3, P4_ABGE4]
+    return layers
 
+
+
+
+def optimizeLeftLayersTwoPoints(e4,e3,e2,e1):
+
+    t = ESP_MIN_CAMADA_ABGE
+    t_ = 0
+    NT1 = 0
+    NT4 = 1
+
+    while NT1 != NT4:            
+        NT1 = totalNumberOfLayers(e1,t)
+        NT4 = totalNumberOfLayers(e4,t)
+        if NT1 == NT4:
+            N1,R1,N4,R4 = calculateNumberLayers(e1, e4, t)
+            if (round(R1,2) < D(str(ESP_MIN_CAMADA_ABGE))) | (round(R4,2) < D(str(ESP_MIN_CAMADA_ABGE))):
+                NT1 = 0
+                NT4 = 1
+            else:                            
+                return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2),round(t_,2)           
         if t > ESP_MAX_CAMADA_ABGE:
-            t = ESP_MIN_CAMADA_ABGE
-            run = True
-            while run:
-                N1,R1,N4,R4 = calculateNumberLayers(e1, e4, t)
-                N1_ = N1 - 1
-                N4_ = N4 - 1
-                N1 = 1
-                N4 = 1
-                R1 = float(N1_)*t + float(R1)
-                R4 = float(N4_)*t + float(R4)
+            break
+        t = t + 0.01
 
-                if (ESP_MAX_CAMADA_ABGE < round(R1,2)) | (round(R1,2) < ESP_MIN_CAMADA_ABGE) | (ESP_MAX_CAMADA_ABGE < round(R4,2)) | (round(R4,2) < ESP_MIN_CAMADA_ABGE):
-                    t = t + 0.01
-                    if t > 0.3:
-                        N1,R1,N4,R4,t,t_ = calculateNonConstantLayers(e4,e3,e2,e1)
-                        run = False                    
-                else:
-                    run = False  
-            
-        return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2),round(t_,2)
+    if t > ESP_MAX_CAMADA_ABGE:
+        t = ESP_MIN_CAMADA_ABGE
+        run = True
+        while run:
+            N1,R1,N4,R4 = calculateNumberLayers(e1, e4, t)
+            N1_ = N1 - 1
+            N4_ = N4 - 1
+            N1 = N4 = 1            
+            R1 = float(N1_)*t + float(R1)
+            R4 = float(N4_)*t + float(R4)
+
+            if (ESP_MAX_CAMADA_ABGE < round(R1,2)) | (round(R1,2) < ESP_MIN_CAMADA_ABGE) | (ESP_MAX_CAMADA_ABGE < round(R4,2)) | (round(R4,2) < ESP_MIN_CAMADA_ABGE):
+                t = t + 0.01
+                if t > 0.3:
+                    N1,R1,N4,R4,t,t_ = calculateNonConstantLayers(e4,e3,e2,e1)
+                    run = False                    
+            else:
+                run = False  
+        
+    return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2),round(t_,2)
+
+
+
+
+def optimizeLeftLayersFourPoints(e4,e3,e2,e1):
+    N1,R1,N2,R2,tA,t_B = optimizeLeftLayersTwoPoints(e2,0,0,e1)
+    N3,R3,N4,R4,tC,t_D = optimizeLeftLayersTwoPoints(e4,0,0,e3)
+    return round(N1,2),round(R1,2),round(N2,2),round(R2,2),round(tA,2),round(t_B,2),round(N3,2),round(R3,2),round(N4,2),round(R4,2),round(tC,2),round(t_D,2)
+
     
-    elif situtation == '1-2-3-4':
-        return 0,0,0,0,0,0
-
-    else:              
-        return 0,0,0,0,0,0
 
 
-def analyzingLeftLayers(points: list, kms: list):
+def analyseLeftLayers(points: list, kms: list):
     leftSolutions = []
     i = 0
 
     for p in points:
         leftSituation = checkLeftSituation(p[0],p[1],p[2],p[3])
-        N1,R1,N4,R4,t,t_ = optimizeLeftLayers(leftSituation,p[0],p[1],p[2],p[3])
-        layers = convertLeftToFinalLayers(N1,R1,N4,R4,t,t_)
-        layers_ = []
-        for layer in layers:
-            layers_.append(float(layer))
-        leftSolutions.append(layers_)
+
+        if leftSituation == "1-4":
+            N1,R1,N4,R4,t,t_ = optimizeLeftLayersTwoPoints(p[0],p[1],p[2],p[3])
+            layers = convertLeftTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_)
+            layers_ = []
+            for layer in layers:
+                layers_.append(float(layer))
+            leftSolutions.append(layers_)
+
+        elif leftSituation == "1-2-3-4":
+            N1,R1,N2,R2,tA,t_B,N3,R3,N4,R4,tC,t_D = optimizeLeftLayersFourPoints(p[0],p[1],p[2],p[3])            
+            layers = convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,t_B,N3,R3,N4,R4,tC,t_D)            
+            layers_ = []
+            for layer in layers:
+                layers_.append(float(layer))
+            leftSolutions.append(layers_)
+        else:            
+            leftSolutions.append([0]*16)
+
+
         print(f"Analyzing km {int(kms[i])}... {round(((i+1)/len(kms))*100,1)}% done")
         time.sleep(0.01)
         i += 1
     
     return leftSolutions
-        
 
 
 
@@ -238,20 +338,8 @@ def analyzingLeftLayers(points: list, kms: list):
 def main(file: str):
     df = readExcel(file)
     points, kms = readExcelData(file, df)
-    leftSolutions = analyzingLeftLayers(points, kms)
+    leftSolutions = analyseLeftLayers(points, kms)
     exportSolutionsToExcel(leftSolutions, kms)    
-
-
-
-
-'''
-
-def main():
-    N1,R1,N4,R4,t,t_ = optimizeLayersLeft1_4("1-4",0.29,0,0,0.26)
-    print(N1,R1,N4,R4,t)
-
-'''
-
 
 
 if __name__ == "__main__":
