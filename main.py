@@ -3,6 +3,9 @@ import math
 import time
 import os
 from decimal import Decimal as D
+from tqdm import tqdm
+
+
 
 
 ESP_MIN_TOTAL_ABGE = 0.25
@@ -11,7 +14,7 @@ ESP_MIN_CAMADA_ABGE = 0.11
 
 
 def readExcel(file: str):
-    print(f"Checking if the file {file} exists...")
+    print(f"\nChecking if the file {file} exists...")
     time.sleep(1)
     isFile = os.path.exists(file)
     if isFile:
@@ -22,11 +25,11 @@ def readExcel(file: str):
         time.sleep(1)
         return df
     else:
-        print(f'The file with the name {file} does not exist. Please, create a copy of the file with the data needed and put it in the current directory.')
+        print(f'\nThe file with the name {file} does not exist. Please, create a copy of the file with the data needed and put it in the current directory.')
         exit()
 
 def readExcelData(file: str, df: pd.DataFrame):
-    print(f"Loading data from file...")
+    print(f"\nLoading data from file...")
     time.sleep(1)
     points = []
     kms = []
@@ -40,13 +43,13 @@ def readExcelData(file: str, df: pd.DataFrame):
         time.sleep(1)
         return points, kms
     except:
-        print(f"The file {file} must have at least the following headers: km, e4, e3, e2, e1, d1, d2, d3, d4. Please, rename the headers accordingly.")
+        print(f"\nThe file {file} must have at least the following headers: km, e4, e3, e2, e1, d1, d2, d3, d4. Please, rename the headers accordingly.")
         exit()
 
-def exportSolutionsToExcel(solutions: list, kms: list):
+def exportSolutionsToExcel(solutions: list, kms: list, side: str):
     df = pd.DataFrame(solutions)
     df.insert(loc=0, column = 'km', value = kms)
-    fileName = 'layerSolutions.xlsx'
+    fileName = f'layerSolutions_{side}.xlsx'
     isFile = os.path.exists(fileName)
     if isFile:
         try:
@@ -56,25 +59,18 @@ def exportSolutionsToExcel(solutions: list, kms: list):
             exit()
 
     header = ["km", "P1_ABGE1", "P1_ABGE2", "P1_ABGE3", "P1_ABGE4", "P2_ABGE1", "P2_ABGE2", "P2_ABGE3", "P2_ABGE4", "P3_ABGE1", "P3_ABGE2", "P3_ABGE3", "P3_ABGE4", "P4_ABGE1", "P4_ABGE2", "P4_ABGE3", "P4_ABGE4" ]
-    df.to_excel(fileName, index = False, header = header)
+    df.to_excel(fileName, index = False, header = header, sheet_name = side)
     
     isFile = os.path.exists(fileName)
     if isFile:
-        print(f'The file {fileName} containing the layer solutions was created. The program will exit now.')
-        time.sleep(3)
+        print(f'\nThe file {fileName} containing the solutions was created.')
+        time.sleep(1)
 
 
-
-def checkRightSituation(d1,d2,d3,d4):
-    if ((d3==0) & (d2 == 0)) & ((d1 != 0) & (d4 != 0)):
+def checkSituation(a4,a3,a2,a1):
+    if ((a3==0) & (a2 == 0)) & ((a1 != 0) & (a4 != 0)):
         return "1-4"
-    else:
-        return "1-2-3-4"
-        
-def checkLeftSituation(e4,e3,e2,e1):
-    if ((e3==0) & (e2 == 0)) & ((e1 != 0) & (e4 != 0)):
-        return "1-4"
-    elif ((e3!=0) & (e2 != 0)) & ((e1 != 0) & (e4 != 0)):
+    elif ((a3!=0) & (a2 != 0)) & ((a1 != 0) & (a4 != 0)):
         return "1-2-3-4"
     else:
         return "0-0-0-0"
@@ -165,14 +161,14 @@ def convertLeftTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_):
     return layers
 
 
-def convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,t_B,N3,R3,N4,R4,tC,t_D):
+def convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD):
     
     P1_ABGE1 = P1_ABGE2 = P1_ABGE3 = P1_ABGE4 = 0
     P2_ABGE1 = P2_ABGE2 = P2_ABGE3 = P2_ABGE4 = 0
     P3_ABGE1 = P3_ABGE2 = P3_ABGE3 = P3_ABGE4 = 0
     P4_ABGE1 = P4_ABGE2 = P4_ABGE3 = P4_ABGE4 = 0
 
-    if t_B == 0:
+    if tB == 0:
         if (N1 == 1) & (N2 == 1):
             P1_ABGE1 = P2_ABGE1 = tA
             P1_ABGE2 = R1
@@ -190,23 +186,23 @@ def convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,t_B,N3,R3,N4,R4,tC,t_D):
     else:
         if (N1 == 1) & (N2 == 1):
             P1_ABGE1 = tA
-            P4_ABGE1 = t_B
+            P4_ABGE1 = tB
             P1_ABGE2 = R1
             P2_ABGE2 = R2
         elif (N1 == 2) & (N2 ==2):
             P1_ABGE1 = P1_ABGE2 = tA
-            P2_ABGE1 = P2_ABGE2 = t_B
+            P2_ABGE1 = P2_ABGE2 = tB
             P1_ABGE3 = R1
             P2_ABGE3 = R2
         elif (N1 == 3) & (N2 ==3):
             P1_ABGE1 = P1_ABGE2 = P1_ABGE3 = tA
-            P2_ABGE1 = P2_ABGE2 = P2_ABGE3 = t_B
+            P2_ABGE1 = P2_ABGE2 = P2_ABGE3 = tB
             P1_ABGE4 = R1
             P2_ABGE4 = R2
         else:
             pass
 
-    if t_D == 0:
+    if tD == 0:
         if (N3 == 1) & (N4 == 1):
             P3_ABGE1 = P4_ABGE1 = tC
             P3_ABGE2 = R3
@@ -224,17 +220,17 @@ def convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,t_B,N3,R3,N4,R4,tC,t_D):
     else:
         if (N3 == 1) & (N4 == 1):
             P3_ABGE1 = tC
-            P4_ABGE1 = t_D
+            P4_ABGE1 = tD
             P3_ABGE2 = R3
             P4_ABGE2 = R4
         elif (N3 == 2) & (N4 ==2):
             P3_ABGE1 = P4_ABGE2 = tC
-            P3_ABGE1 = P4_ABGE2 = t_D
+            P3_ABGE1 = P4_ABGE2 = tD
             P3_ABGE3 = R3
             P4_ABGE3 = R4
         elif (N3 == 3) & (N4 ==3):
             P3_ABGE1 = P3_ABGE2 = P3_ABGE3 = tC
-            P4_ABGE1 = P4_ABGE2 = P4_ABGE3 = t_D
+            P4_ABGE1 = P4_ABGE2 = P4_ABGE3 = tD
             P3_ABGE4 = R3
             P4_ABGE4 = R4
         else:
@@ -243,9 +239,7 @@ def convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,t_B,N3,R3,N4,R4,tC,t_D):
     layers = [P1_ABGE1, P1_ABGE2, P1_ABGE3, P1_ABGE4, P2_ABGE1, P2_ABGE2, P2_ABGE3, P2_ABGE4, P3_ABGE1, P3_ABGE2, P3_ABGE3, P3_ABGE4, P4_ABGE1, P4_ABGE2, P4_ABGE3, P4_ABGE4]
     return layers
 
-
-
-
+    
 def optimizeLeftLayersTwoPoints(e4,e3,e2,e1):
 
     t = ESP_MIN_CAMADA_ABGE
@@ -288,23 +282,20 @@ def optimizeLeftLayersTwoPoints(e4,e3,e2,e1):
         
     return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2),round(t_,2)
 
-
-
-
 def optimizeLeftLayersFourPoints(e4,e3,e2,e1):
-    N1,R1,N2,R2,tA,t_B = optimizeLeftLayersTwoPoints(e2,0,0,e1)
-    N3,R3,N4,R4,tC,t_D = optimizeLeftLayersTwoPoints(e4,0,0,e3)
-    return round(N1,2),round(R1,2),round(N2,2),round(R2,2),round(tA,2),round(t_B,2),round(N3,2),round(R3,2),round(N4,2),round(R4,2),round(tC,2),round(t_D,2)
-
-    
-
+    N1,R1,N2,R2,tA,tB = optimizeLeftLayersTwoPoints(e2,0,0,e1)
+    N3,R3,N4,R4,tC,tD = optimizeLeftLayersTwoPoints(e4,0,0,e3)
+    return round(N1,2),round(R1,2),round(N2,2),round(R2,2),round(tA,2),round(tB,2),round(N3,2),round(R3,2),round(N4,2),round(R4,2),round(tC,2),round(tD,2)
 
 def analyseLeftLayers(points: list, kms: list):
     leftSolutions = []
+    rightSolutions = []
     i = 0
 
-    for p in points:
-        leftSituation = checkLeftSituation(p[0],p[1],p[2],p[3])
+    print("")
+    for p in tqdm(points, desc="Analysing layers...", ncols=100):
+        leftSituation = checkSituation(p[0],p[1],p[2],p[3])
+        rightSituation = checkSituation(p[7],p[6],p[5],p[4])
 
         if leftSituation == "1-4":
             N1,R1,N4,R4,t,t_ = optimizeLeftLayersTwoPoints(p[0],p[1],p[2],p[3])
@@ -315,8 +306,8 @@ def analyseLeftLayers(points: list, kms: list):
             leftSolutions.append(layers_)
 
         elif leftSituation == "1-2-3-4":
-            N1,R1,N2,R2,tA,t_B,N3,R3,N4,R4,tC,t_D = optimizeLeftLayersFourPoints(p[0],p[1],p[2],p[3])            
-            layers = convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,t_B,N3,R3,N4,R4,tC,t_D)            
+            N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD = optimizeLeftLayersFourPoints(p[0],p[1],p[2],p[3])            
+            layers = convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD)            
             layers_ = []
             for layer in layers:
                 layers_.append(float(layer))
@@ -324,22 +315,40 @@ def analyseLeftLayers(points: list, kms: list):
         else:            
             leftSolutions.append([0]*16)
 
+        if rightSituation == "1-4":
+            N1,R1,N4,R4,t,t_ = optimizeLeftLayersTwoPoints(p[7],p[6],p[5],p[4])
+            layers = convertLeftTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_)
+            layers_ = []
+            for layer in layers:
+                layers_.append(float(layer))
+            rightSolutions.append(layers_)
 
-        print(f"Analyzing km {int(kms[i])}... {round(((i+1)/len(kms))*100,1)}% done")
+        elif rightSituation == "1-2-3-4":
+            N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD = optimizeLeftLayersFourPoints(p[7],p[6],p[5],p[4])            
+            layers = convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD)            
+            layers_ = []
+            for layer in layers:
+                layers_.append(float(layer))
+            rightSolutions.append(layers_)
+        else:            
+            rightSolutions.append([0]*16)
+
         time.sleep(0.01)
         i += 1
     
-    return leftSolutions
-
-
+    return leftSolutions,rightSolutions
 
 
 
 def main(file: str):
     df = readExcel(file)
     points, kms = readExcelData(file, df)
-    leftSolutions = analyseLeftLayers(points, kms)
-    exportSolutionsToExcel(leftSolutions, kms)    
+    leftSolutions,rightSolutions = analyseLeftLayers(points, kms)
+    exportSolutionsToExcel(leftSolutions, kms, 'left')
+    exportSolutionsToExcel(rightSolutions, kms, 'right')
+
+    print("\nThe program will exit now.")
+    time.sleep(3)  
 
 
 if __name__ == "__main__":
