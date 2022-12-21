@@ -5,9 +5,6 @@ import os
 from decimal import Decimal as D
 from tqdm import tqdm
 
-
-
-
 ESP_MIN_TOTAL_ABGE = 0.25
 ESP_MAX_CAMADA_ABGE = 0.30
 ESP_MIN_CAMADA_ABGE = 0.11
@@ -117,7 +114,7 @@ def calculateNonConstantLayers(e4,e3,e2,e1):
     else:
         pass
 
-def convertLeftTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_):
+def convertTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_):
 
     P1_ABGE1 = P1_ABGE2 = P1_ABGE3 = P1_ABGE4 = 0
     P2_ABGE1 = P2_ABGE2 = P2_ABGE3 = P2_ABGE4 = 0
@@ -161,7 +158,7 @@ def convertLeftTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_):
     return layers
 
 
-def convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD):
+def convertFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD):
     
     P1_ABGE1 = P1_ABGE2 = P1_ABGE3 = P1_ABGE4 = 0
     P2_ABGE1 = P2_ABGE2 = P2_ABGE3 = P2_ABGE4 = 0
@@ -239,8 +236,8 @@ def convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD):
     layers = [P1_ABGE1, P1_ABGE2, P1_ABGE3, P1_ABGE4, P2_ABGE1, P2_ABGE2, P2_ABGE3, P2_ABGE4, P3_ABGE1, P3_ABGE2, P3_ABGE3, P3_ABGE4, P4_ABGE1, P4_ABGE2, P4_ABGE3, P4_ABGE4]
     return layers
 
-    
-def optimizeLeftLayersTwoPoints(e4,e3,e2,e1):
+
+def optimizeLayersTwoPoints(e4,e3,e2,e1):
 
     t = ESP_MIN_CAMADA_ABGE
     t_ = 0
@@ -283,8 +280,8 @@ def optimizeLeftLayersTwoPoints(e4,e3,e2,e1):
     return round(N1,2),round(R1,2),round(N4,2),round(R4,2),round(t,2),round(t_,2)
 
 def optimizeLeftLayersFourPoints(e4,e3,e2,e1):
-    N1,R1,N2,R2,tA,tB = optimizeLeftLayersTwoPoints(e2,0,0,e1)
-    N3,R3,N4,R4,tC,tD = optimizeLeftLayersTwoPoints(e4,0,0,e3)
+    N1,R1,N2,R2,tA,tB = optimizeLayersTwoPoints(e2,0,0,e1)
+    N3,R3,N4,R4,tC,tD = optimizeLayersTwoPoints(e4,0,0,e3)
     return round(N1,2),round(R1,2),round(N2,2),round(R2,2),round(tA,2),round(tB,2),round(N3,2),round(R3,2),round(N4,2),round(R4,2),round(tC,2),round(tD,2)
 
 def analyseLeftLayers(points: list, kms: list):
@@ -298,8 +295,8 @@ def analyseLeftLayers(points: list, kms: list):
         rightSituation = checkSituation(p[7],p[6],p[5],p[4])
 
         if leftSituation == "1-4":
-            N1,R1,N4,R4,t,t_ = optimizeLeftLayersTwoPoints(p[0],p[1],p[2],p[3])
-            layers = convertLeftTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_)
+            N1,R1,N4,R4,t,t_ = optimizeLayersTwoPoints(p[0],p[1],p[2],p[3])
+            layers = convertTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_)
             layers_ = []
             for layer in layers:
                 layers_.append(float(layer))
@@ -307,7 +304,7 @@ def analyseLeftLayers(points: list, kms: list):
 
         elif leftSituation == "1-2-3-4":
             N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD = optimizeLeftLayersFourPoints(p[0],p[1],p[2],p[3])            
-            layers = convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD)            
+            layers = convertFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD)            
             layers_ = []
             for layer in layers:
                 layers_.append(float(layer))
@@ -316,8 +313,8 @@ def analyseLeftLayers(points: list, kms: list):
             leftSolutions.append([0]*16)
 
         if rightSituation == "1-4":
-            N1,R1,N4,R4,t,t_ = optimizeLeftLayersTwoPoints(p[7],p[6],p[5],p[4])
-            layers = convertLeftTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_)
+            N1,R1,N4,R4,t,t_ = optimizeLayersTwoPoints(p[7],p[6],p[5],p[4])
+            layers = convertTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_)
             layers_ = []
             for layer in layers:
                 layers_.append(float(layer))
@@ -325,7 +322,7 @@ def analyseLeftLayers(points: list, kms: list):
 
         elif rightSituation == "1-2-3-4":
             N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD = optimizeLeftLayersFourPoints(p[7],p[6],p[5],p[4])            
-            layers = convertLeftFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD)            
+            layers = convertFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD)            
             layers_ = []
             for layer in layers:
                 layers_.append(float(layer))
@@ -337,8 +334,6 @@ def analyseLeftLayers(points: list, kms: list):
         i += 1
     
     return leftSolutions,rightSolutions
-
-
 
 def main(file: str):
     df = readExcel(file)
