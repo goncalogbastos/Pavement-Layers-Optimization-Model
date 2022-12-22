@@ -56,6 +56,28 @@ def readExcelData(file: str, df: pd.DataFrame):
         print(f"\nThe file {file} must have correct headers. Please, rename the headers accordingly.")
         exit()
 
+def exportCoordinatesToExcel(coordinates: list, kms: list, side: str):
+    df = pd.DataFrame(coordinates)
+    df.insert(loc=0, column = 'km', value = kms)
+    fileName = f'layerCoordinates_{side}.xlsx'
+    isFile = os.path.exists(fileName)
+    if isFile:
+        try:
+            os.remove(fileName)
+        except Exception as e:
+            print(e)
+            exit()
+
+    df.to_excel(fileName, index = False, header = False, sheet_name = side)
+    
+    isFile = os.path.exists(fileName)
+    if isFile:
+        print(f'\nThe file {fileName} containing the coordinates was created.')
+        time.sleep(1)
+
+
+
+
 
 def getInitialY_OffsetPosition(km: int):
     return (km - 43000)/25
@@ -147,8 +169,8 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                 (x1,Y - getYPosition(P1,2)),(x1,Y - getYPosition(P1,3)),(x2,Y - getYPosition(P2,2)),(x2,Y - getYPosition(P2,3)), # 3rd layer 1-2
                 (x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,3)),(x3,Y - getYPosition(P3,3)),(x4,Y - getYPosition(P4,3)), # 3rd layer 3-4
 
-                (x1,Y - getYPosition(P1,3)),(x1,Y - getYPosition(P1,4)),(x2,Y - getYPosition(P2,3)),(x2,Y - getYPosition(P2,4)), # 4rd layer 1-2
-                (x3,Y - getYPosition(P3,3)),(x4,Y - getYPosition(P4,4)),(x3,Y - getYPosition(P3,3)),(x4,Y - getYPosition(P4,4)) # 4rd layer 3-4   
+                (x1,Y - getYPosition(P1,3)),(x1,Y - getYPosition(P1,4)),(x2,Y - getYPosition(P2,3)),(x2,Y - getYPosition(P2,4)), # 4th layer 1-2
+                (x3,Y - getYPosition(P3,3)),(x4,Y - getYPosition(P4,4)),(x3,Y - getYPosition(P3,3)),(x4,Y - getYPosition(P4,4)) # 4th layer 3-4   
             ])
         else:
             pass
@@ -158,14 +180,27 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
     return coordinates
 
 
+def calculateCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, kms: list):
+    coordinates = []
+    print("")
+    i=0
+    for km in tqdm(kms, desc="Getting Coordinates...", ncols=100):
+        coordinates.append(getCoordinates(distances[i], P1[i], P2[i], P3[i], P4[i], km))
+        i += 1
+        time.sleep(0.01)
+
+    return coordinates
+
+
 
 def main(filePath = 'layerSolutions_left_Civil.xlsx'):
     df = readExcel(filePath)
     distances,P1,P2,P3,P4,kms = readExcelData(filePath, df)
+    coordinates = calculateCoordinates(distances,P1,P2,P3,P4,kms)    
+    exportCoordinatesToExcel(coordinates, kms, "left")
 
-    coordinates = []
-    for i,km in enumerate(kms):
-        coordinates.append(getCoordinates(distances[i], P1[i], P2[i], P3[i], P4[i], km))
+    print("\nThe program will exit now.")
+    time.sleep(3)  
 
 
 
