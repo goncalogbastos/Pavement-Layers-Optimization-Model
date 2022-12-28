@@ -1,5 +1,4 @@
 import pandas as pd
-import math
 import time
 import os
 from decimal import Decimal as D
@@ -102,7 +101,7 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
     Y = getInitialY_OffsetPosition(km)
 
     if isZeroP1:
-        coordinates.append([0]*16)
+        coordinates.append([0])
 
     elif (isZeroP1 == False) & (isZeroP4 == False) & (isZeroP2 == True) & (isZeroP3 == True):
         x1 = distances[0]
@@ -143,7 +142,7 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                 (x3,Y),(x3,Y - getYPosition(P3,1)),(x4,Y),(x4,Y - getYPosition(P4,1)), # 1st layer 3-4
 
                 (x1,Y - getYPosition(P1,1)),(x1,Y - getYPosition(P1,2)),(x2,Y - getYPosition(P2,1)),(x2,Y - getYPosition(P2,2)), # 2nd layer 1-2
-                (x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,2)),(x3,Y - getYPosition(P3,1)),(x4,Y - getYPosition(P4,2)) # 2nd layer 3-4                  
+                (x3,Y - getYPosition(P3,1)),(x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,1)),(x4,Y - getYPosition(P4,2)) # 2nd layer 3-4                  
             ])
 
         elif ZerosP1 == 1:
@@ -152,10 +151,10 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                 (x3,Y),(x3,Y - getYPosition(P3,1)),(x4,Y),(x4,Y - getYPosition(P4,1)), # 1st layer 3-4
 
                 (x1,Y - getYPosition(P1,1)),(x1,Y - getYPosition(P1,2)),(x2,Y - getYPosition(P2,1)),(x2,Y - getYPosition(P2,2)), # 2nd layer 1-2
-                (x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,2)),(x3,Y - getYPosition(P3,1)),(x4,Y - getYPosition(P4,2)), # 2nd layer 3-4        
+                (x3,Y - getYPosition(P3,2)),(x3,Y - getYPosition(P4,2)),(x4,Y - getYPosition(P3,1)),(x4,Y - getYPosition(P4,2)), # 2nd layer 3-4        
 
                 (x1,Y - getYPosition(P1,2)),(x1,Y - getYPosition(P1,3)),(x2,Y - getYPosition(P2,2)),(x2,Y - getYPosition(P2,3)), # 3rd layer 1-2
-                (x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,2)),(x3,Y - getYPosition(P3,1)),(x4,Y - getYPosition(P4,2)) # 3rd layer 3-4                     
+                (x3,Y - getYPosition(P3,2)),(x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,1)),(x4,Y - getYPosition(P4,2)) # 3rd layer 3-4                     
             ])
 
         elif ZerosP1 == 0:
@@ -164,18 +163,18 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                 (x3,Y),(x3,Y - getYPosition(P3,1)),(x4,Y),(x4,Y - getYPosition(P4,1)), # 1st layer 3-4
 
                 (x1,Y - getYPosition(P1,1)),(x1,Y - getYPosition(P1,2)),(x2,Y - getYPosition(P2,1)),(x2,Y - getYPosition(P2,2)), # 2nd layer 1-2
-                (x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,2)),(x3,Y - getYPosition(P3,1)),(x4,Y - getYPosition(P4,2)), # 2nd layer 3-4        
+                (x3,Y - getYPosition(P3,2)),(x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,1)),(x4,Y - getYPosition(P4,2)), # 2nd layer 3-4        
 
                 (x1,Y - getYPosition(P1,2)),(x1,Y - getYPosition(P1,3)),(x2,Y - getYPosition(P2,2)),(x2,Y - getYPosition(P2,3)), # 3rd layer 1-2
-                (x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,3)),(x3,Y - getYPosition(P3,3)),(x4,Y - getYPosition(P4,3)), # 3rd layer 3-4
+                (x3,Y - getYPosition(P3,2)),(x3,Y - getYPosition(P3,3)),(x4,Y - getYPosition(P4,2)),(x4,Y - getYPosition(P4,3)), # 3rd layer 3-4
 
                 (x1,Y - getYPosition(P1,3)),(x1,Y - getYPosition(P1,4)),(x2,Y - getYPosition(P2,3)),(x2,Y - getYPosition(P2,4)), # 4th layer 1-2
-                (x3,Y - getYPosition(P3,3)),(x4,Y - getYPosition(P4,4)),(x3,Y - getYPosition(P3,3)),(x4,Y - getYPosition(P4,4)) # 4th layer 3-4   
+                (x3,Y - getYPosition(P3,3)),(x3,Y - getYPosition(P3,4)),(x4,Y - getYPosition(P4,3)),(x4,Y - getYPosition(P4,4)) # 4th layer 3-4   
             ])
         else:
             pass
     else:
-        coordinates.append([0]*16)
+        coordinates.append([0])
 
     return coordinates
 
@@ -193,11 +192,11 @@ def calculateCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list
 
 
 
-def main(filePath = 'layerSolutions_left_Civil.xlsx'):
+def main(filePath: str, side: str):
     df = readExcel(filePath)
     distances,P1,P2,P3,P4,kms = readExcelData(filePath, df)
     coordinates = calculateCoordinates(distances,P1,P2,P3,P4,kms)    
-    exportCoordinatesToExcel(coordinates, kms, "left")
+    exportCoordinatesToExcel(coordinates, kms, side)
 
     print("\nThe program will exit now.")
     time.sleep(3)  
@@ -206,5 +205,7 @@ def main(filePath = 'layerSolutions_left_Civil.xlsx'):
 
 
 if __name__ == "__main__":
-    main()
+    main('layerSolutions_left_Civil.xlsx', "left")
+
+
 
