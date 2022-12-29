@@ -46,7 +46,7 @@ def readExcelData(file: str, df: pd.DataFrame):
 def exportSolutionsToExcel(solutions: list, kms: list, side: str):
     df = pd.DataFrame(solutions)
     df.insert(loc=0, column = 'km', value = kms)
-    fileName = f'layerSolutions_{side}.xlsx'
+    fileName = f'./output/layerSolutions_{side}.xlsx'
     isFile = os.path.exists(fileName)
     if isFile:
         try:
@@ -122,6 +122,7 @@ def convertTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_):
     P4_ABGE1 = P4_ABGE2 = P4_ABGE3 = P4_ABGE4 = 0
 
     if t_ == 0:
+        
         if (N1 == 1) & (N4 == 1):
             P1_ABGE1 = P4_ABGE1 = t
             P1_ABGE2 = R1
@@ -137,6 +138,7 @@ def convertTwoPointsToFinalLayers(N1,R1,N4,R4,t,t_):
         else:
             pass
     else:
+        
         if (N1 == 1) & (N4 == 1):
             P1_ABGE1 = t
             P4_ABGE1 = t_
@@ -164,7 +166,7 @@ def convertFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD):
     P2_ABGE1 = P2_ABGE2 = P2_ABGE3 = P2_ABGE4 = 0
     P3_ABGE1 = P3_ABGE2 = P3_ABGE3 = P3_ABGE4 = 0
     P4_ABGE1 = P4_ABGE2 = P4_ABGE3 = P4_ABGE4 = 0
-
+    
     if tB == 0:
         if (N1 == 1) & (N2 == 1):
             P1_ABGE1 = P2_ABGE1 = tA
@@ -182,10 +184,12 @@ def convertFourPointsToFinalLayers(N1,R1,N2,R2,tA,tB,N3,R3,N4,R4,tC,tD):
             pass
     else:
         if (N1 == 1) & (N2 == 1):
+
             P1_ABGE1 = tA
-            P4_ABGE1 = tB
+            P2_ABGE1 = tB
             P1_ABGE2 = R1
             P2_ABGE2 = R2
+
         elif (N1 == 2) & (N2 ==2):
             P1_ABGE1 = P1_ABGE2 = tA
             P2_ABGE1 = P2_ABGE2 = tB
@@ -271,7 +275,7 @@ def optimizeLayersTwoPoints(e4,e3,e2,e1):
 
             if (ESP_MAX_CAMADA_ABGE < round(R1,2)) | (round(R1,2) < ESP_MIN_CAMADA_ABGE) | (ESP_MAX_CAMADA_ABGE < round(R4,2)) | (round(R4,2) < ESP_MIN_CAMADA_ABGE):
                 t = t + 0.01
-                if t > 0.3:
+                if t > 0.3:                    
                     N1,R1,N4,R4,t,t_ = calculateNonConstantLayers(e4,e3,e2,e1)
                     run = False                    
             else:
@@ -330,10 +334,11 @@ def analyseLeftLayers(points: list, kms: list):
         else:            
             rightSolutions.append([0]*16)
 
-        time.sleep(0.01)
         i += 1
     
     return leftSolutions,rightSolutions
+
+
 
 def main(file: str):
     df = readExcel(file)
@@ -344,7 +349,18 @@ def main(file: str):
 
     print("\nThe program will exit now.")
     time.sleep(3)  
+'''
+
+def main():
+    #df = readExcel(file)
+    #points, kms = readExcelData(file, df)
+    leftSolutions,rightSolutions = analyseLeftLayers([[0.47,0.51,0.51,0.66,0,0,0,0]], [49550])
+    #exportSolutionsToExcel(leftSolutions, kms, 'left')
+    #exportSolutionsToExcel(rightSolutions, kms, 'right')
+'''
+
+
 
 
 if __name__ == "__main__":
-    main("DATA.xlsx")
+    main('./src/DATA.xlsx')

@@ -58,7 +58,7 @@ def readExcelData(file: str, df: pd.DataFrame):
 def exportCoordinatesToExcel(coordinates: list, kms: list, side: str):
     df = pd.DataFrame(coordinates)
     df.insert(loc=0, column = 'km', value = kms)
-    fileName = f'layerCoordinates_{side}.xlsx'
+    fileName = f'./output/layerCoordinates_{side}.xlsx'
     isFile = os.path.exists(fileName)
     if isFile:
         try:
@@ -151,10 +151,10 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                 (x3,Y),(x3,Y - getYPosition(P3,1)),(x4,Y),(x4,Y - getYPosition(P4,1)), # 1st layer 3-4
 
                 (x1,Y - getYPosition(P1,1)),(x1,Y - getYPosition(P1,2)),(x2,Y - getYPosition(P2,1)),(x2,Y - getYPosition(P2,2)), # 2nd layer 1-2
-                (x3,Y - getYPosition(P3,2)),(x3,Y - getYPosition(P4,2)),(x4,Y - getYPosition(P3,1)),(x4,Y - getYPosition(P4,2)), # 2nd layer 3-4        
+                (x3,Y - getYPosition(P3,1)),(x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,1)),(x4,Y - getYPosition(P4,2)), # 2nd layer 3-4        
 
                 (x1,Y - getYPosition(P1,2)),(x1,Y - getYPosition(P1,3)),(x2,Y - getYPosition(P2,2)),(x2,Y - getYPosition(P2,3)), # 3rd layer 1-2
-                (x3,Y - getYPosition(P3,2)),(x3,Y - getYPosition(P3,2)),(x4,Y - getYPosition(P4,1)),(x4,Y - getYPosition(P4,2)) # 3rd layer 3-4                     
+                (x3,Y - getYPosition(P3,2)),(x3,Y - getYPosition(P3,3)),(x4,Y - getYPosition(P4,2)),(x4,Y - getYPosition(P4,3)) # 3rd layer 3-4                     
             ])
 
         elif ZerosP1 == 0:
@@ -198,14 +198,17 @@ def main(filePath: str, side: str):
     coordinates = calculateCoordinates(distances,P1,P2,P3,P4,kms)    
     exportCoordinatesToExcel(coordinates, kms, side)
 
-    print("\nThe program will exit now.")
-    time.sleep(3)  
+  
 
 
 
 
 if __name__ == "__main__":
-    main('layerSolutions_left_Civil.xlsx', "left")
+    main('./src/layerSolutions_left_Civil.xlsx', "left")
+    main('./src/layerSolutions_right_Civil.xlsx', "right")
+    
+    print("\nThe program will exit now.")
+    time.sleep(3)
 
 
 
