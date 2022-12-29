@@ -347,20 +347,8 @@ def main(file: str):
     exportSolutionsToExcel(leftSolutions, kms, 'left')
     exportSolutionsToExcel(rightSolutions, kms, 'right')
 
-    print("\nThe program will exit now.")
-    time.sleep(3)  
-'''
-
-def main():
-    #df = readExcel(file)
-    #points, kms = readExcelData(file, df)
-    leftSolutions,rightSolutions = analyseLeftLayers([[0.47,0.51,0.51,0.66,0,0,0,0]], [49550])
-    #exportSolutionsToExcel(leftSolutions, kms, 'left')
-    #exportSolutionsToExcel(rightSolutions, kms, 'right')
-'''
-
-
-
 
 if __name__ == "__main__":
     main('./src/DATA.xlsx')
+    import copy_excel_columns
+    import coordinates

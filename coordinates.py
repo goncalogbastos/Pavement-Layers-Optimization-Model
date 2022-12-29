@@ -203,12 +203,12 @@ def main(filePath: str, side: str):
 
 
 
-if __name__ == "__main__":
-    main('./src/layerSolutions_left_Civil.xlsx', "left")
-    main('./src/layerSolutions_right_Civil.xlsx', "right")
-    
-    print("\nThe program will exit now.")
-    time.sleep(3)
+
+main('./src/layerSolutions_left_Civil.xlsx', "left")
+main('./src/layerSolutions_right_Civil.xlsx', "right")
+
+print("\nThe program will exit now.")
+time.sleep(3)
 
 
 
