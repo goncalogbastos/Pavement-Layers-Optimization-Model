@@ -6,6 +6,7 @@ from tqdm import tqdm
 
 
 def readExcel(file: str):
+    print("\n############################################")
     print(f"\nChecking if the file {file} exists...")
     time.sleep(1)
     isFile = os.path.exists(file)
@@ -24,6 +25,7 @@ def readExcel(file: str):
 
 
 def readExcelData(file: str, df: pd.DataFrame):
+    print("\n############################################")
     print(f"\nLoading data from file...")
     time.sleep(1)
     P1 = []
@@ -32,14 +34,16 @@ def readExcelData(file: str, df: pd.DataFrame):
     P4 = []
     kms = []
     distances = []
+    se = []
     try:
-        for i, r in df.iterrows():
+        for _, r in df.iterrows():
             row_distances = [r.L1, r.L2, r.L3, r.L4]
             row_P1 = [r.P1_ABGE1, r.P1_ABGE2, r.P1_ABGE3, r.P1_ABGE4]
             row_P2 = [r.P2_ABGE1, r.P2_ABGE2, r.P2_ABGE3, r.P2_ABGE4]
             row_P3 = [r.P3_ABGE1, r.P3_ABGE2, r.P3_ABGE3, r.P3_ABGE4]
             row_P4 = [r.P4_ABGE1, r.P4_ABGE2, r.P4_ABGE3, r.P4_ABGE4]
             row_kms = r.km
+            row_se = r.SE
 
             distances.append(row_distances)
             P1.append(row_P1)
@@ -47,10 +51,11 @@ def readExcelData(file: str, df: pd.DataFrame):
             P3.append(row_P3)
             P4.append(row_P4)
             kms.append(row_kms)
+            se.append(row_se)
 
-        print(f"Data successfully loaded.")
+        print(f"Data successfully loaded.")        
         time.sleep(1)
-        return distances, P1, P2, P3, P4, kms
+        return distances, P1, P2, P3, P4, kms, se
     except:
         print(
             f"\nThe file {file} must have correct headers. Please, rename the headers accordingly."
@@ -86,7 +91,7 @@ def getYPosition(pointValues: list, k: int):
     return sum(pointValues[:k])
 
 
-def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: int):
+def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: int, se: float):
     coordinates = []
 
     isZeroP1 = all(value == 0 for value in P1)
@@ -99,6 +104,7 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
     ZerosP3 = P3.count(0)
     ZerosP4 = P4.count(0)
 
+    se = float(se)
     Y = getInitialY_OffsetPosition(km)
 
     if isZeroP1:
@@ -114,19 +120,19 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
         x4 = distances[3]
 
         if (x1 == 0) | (x4 == 0):
-            pass
+            coordinates.append([0])
 
         elif ZerosP1 == 2:
             coordinates.append(
                 [
                     (x1, Y),
                     (x1, Y - getYPosition(P1, 1)),
-                    (x4, Y),
-                    (x4, Y - getYPosition(P4, 1)),  # 1st layer 1-4
+                    (x4, Y + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),  # 1st layer 1-4
                     (x1, Y - getYPosition(P1, 1)),
                     (x1, Y - getYPosition(P1, 2)),
-                    (x4, Y - getYPosition(P4, 1)),
-                    (x4, Y - getYPosition(P4, 2)),  # 2nd layer 1-4
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 2) + + se * abs(x4 - x1)),  # 2nd layer 1-4
                 ]
             )
 
@@ -135,16 +141,16 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                 [
                     (x1, Y),
                     (x1, Y - getYPosition(P1, 1)),
-                    (x4, Y),
-                    (x4, Y - getYPosition(P4, 1)),  # 1st layer 1-4
+                    (x4, Y + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),  # 1st layer 1-4
                     (x1, Y - getYPosition(P1, 1)),
                     (x1, Y - getYPosition(P1, 2)),
-                    (x4, Y - getYPosition(P4, 1)),
-                    (x4, Y - getYPosition(P4, 2)),  # 2nd layer 1-4
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 2) + se * abs(x4 - x1)),  # 2nd layer 1-4
                     (x1, Y - getYPosition(P1, 2)),
                     (x1, Y - getYPosition(P1, 3)),
-                    (x4, Y - getYPosition(P4, 2)),
-                    (x4, Y - getYPosition(P4, 3)),  # 3rd layer 1-4
+                    (x4, Y - getYPosition(P4, 2) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 3) + se * abs(x4 - x1)),  # 3rd layer 1-4
                 ]
             )
 
@@ -153,20 +159,20 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                 [
                     (x1, Y),
                     (x1, Y - getYPosition(P1, 1)),
-                    (x4, Y),
-                    (x4, Y - getYPosition(P4, 1)),  # 1st layer
+                    (x4, Y + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),  # 1st layer
                     (x1, Y - getYPosition(P1, 1)),
                     (x1, Y - getYPosition(P1, 2)),
-                    (x4, Y - getYPosition(P4, 1)),
-                    (x4, Y - getYPosition(P4, 2)),  # 2nd layer 1-4
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 2) + se * abs(x4 - x1)),  # 2nd layer 1-4
                     (x1, Y - getYPosition(P1, 2)),
                     (x1, Y - getYPosition(P1, 3)),
-                    (x4, Y - getYPosition(P4, 2)),
-                    (x4, Y - getYPosition(P4, 3)),  # 3rd layer 1-4
+                    (x4, Y - getYPosition(P4, 2) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 3) + se * abs(x4 - x1)),  # 3rd layer 1-4
                     (x1, Y - getYPosition(P1, 3)),
                     (x1, Y - getYPosition(P1, 4)),
-                    (x4, Y - getYPosition(P4, 3)),
-                    (x4, Y - getYPosition(P4, 4)),  # 4th layer 1-4
+                    (x4, Y - getYPosition(P4, 3) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 4) + se * abs(x4 - x1)),  # 4th layer 1-4
                 ]
             )
         else:
@@ -188,20 +194,20 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                 [
                     (x1, Y),
                     (x1, Y - getYPosition(P1, 1)),
-                    (x2, Y),
-                    (x2, Y - getYPosition(P2, 1)),  # 1st layer 1-2
-                    (x3, Y),
-                    (x3, Y - getYPosition(P3, 1)),
-                    (x4, Y),
-                    (x4, Y - getYPosition(P4, 1)),  # 1st layer 3-4
+                    (x2, Y + se * abs(x2 - x1)),
+                    (x2, Y - getYPosition(P2, 1) + se * abs(x2 - x1)),  # 1st layer 1-2
+                    (x3, Y + se * abs(x3 - x1)),
+                    (x3, Y - getYPosition(P3, 1) + se * abs(x3 - x1)),
+                    (x4, Y + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),  # 1st layer 3-4
                     (x1, Y - getYPosition(P1, 1)),
                     (x1, Y - getYPosition(P1, 2)),
-                    (x2, Y - getYPosition(P2, 1)),
-                    (x2, Y - getYPosition(P2, 2)),  # 2nd layer 1-2
-                    (x3, Y - getYPosition(P3, 1)),
-                    (x3, Y - getYPosition(P3, 2)),
-                    (x4, Y - getYPosition(P4, 1)),
-                    (x4, Y - getYPosition(P4, 2)),  # 2nd layer 3-4
+                    (x2, Y - getYPosition(P2, 1) + se * abs(x2 - x1)),
+                    (x2, Y - getYPosition(P2, 2) + se * abs(x2 - x1)),  # 2nd layer 1-2
+                    (x3, Y - getYPosition(P3, 1) + se * abs(x3 - x1)),
+                    (x3, Y - getYPosition(P3, 2) + se * abs(x3 - x1)),
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 2) + se * abs(x4 - x1)),  # 2nd layer 3-4
                 ]
             )
 
@@ -210,28 +216,28 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                 [
                     (x1, Y),
                     (x1, Y - getYPosition(P1, 1)),
-                    (x2, Y),
-                    (x2, Y - getYPosition(P2, 1)),  # 1st layer 1-2
-                    (x3, Y),
-                    (x3, Y - getYPosition(P3, 1)),
-                    (x4, Y),
-                    (x4, Y - getYPosition(P4, 1)),  # 1st layer 3-4
+                    (x2, Y + se * abs(x2 - x1)),
+                    (x2, Y - getYPosition(P2, 1) + se * abs(x2 - x1)),  # 1st layer 1-2
+                    (x3, Y + se * abs(x3 - x1)),
+                    (x3, Y - getYPosition(P3, 1) + se * abs(x3 - x1)),
+                    (x4, Y + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),  # 1st layer 3-4
                     (x1, Y - getYPosition(P1, 1)),
                     (x1, Y - getYPosition(P1, 2)),
-                    (x2, Y - getYPosition(P2, 1)),
-                    (x2, Y - getYPosition(P2, 2)),  # 2nd layer 1-2
-                    (x3, Y - getYPosition(P3, 1)),
-                    (x3, Y - getYPosition(P3, 2)),
-                    (x4, Y - getYPosition(P4, 1)),
-                    (x4, Y - getYPosition(P4, 2)),  # 2nd layer 3-4
+                    (x2, Y - getYPosition(P2, 1) + se * abs(x2 - x1)),
+                    (x2, Y - getYPosition(P2, 2) + se * abs(x2 - x1)),  # 2nd layer 1-2
+                    (x3, Y - getYPosition(P3, 1) + se * abs(x3 - x1)),
+                    (x3, Y - getYPosition(P3, 2) + se * abs(x3 - x1)),
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 2) + se * abs(x4 - x1)),  # 2nd layer 3-4
                     (x1, Y - getYPosition(P1, 2)),
                     (x1, Y - getYPosition(P1, 3)),
-                    (x2, Y - getYPosition(P2, 2)),
-                    (x2, Y - getYPosition(P2, 3)),  # 3rd layer 1-2
-                    (x3, Y - getYPosition(P3, 2)),
-                    (x3, Y - getYPosition(P3, 3)),
-                    (x4, Y - getYPosition(P4, 2)),
-                    (x4, Y - getYPosition(P4, 3)),  # 3rd layer 3-4
+                    (x2, Y - getYPosition(P2, 2) + se * abs(x2 - x1)),
+                    (x2, Y - getYPosition(P2, 3) + se * abs(x2 - x1)),  # 3rd layer 1-2
+                    (x3, Y - getYPosition(P3, 2) + se * abs(x3 - x1)),
+                    (x3, Y - getYPosition(P3, 3) + se * abs(x3 - x1)),
+                    (x4, Y - getYPosition(P4, 2) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 3) + se * abs(x4 - x1)),  # 3rd layer 3-4
                 ]
             )
 
@@ -240,36 +246,36 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                 [
                     (x1, Y),
                     (x1, Y - getYPosition(P1, 1)),
-                    (x2, Y),
-                    (x2, Y - getYPosition(P2, 1)),  # 1st layer 1-2
-                    (x3, Y),
-                    (x3, Y - getYPosition(P3, 1)),
-                    (x4, Y),
-                    (x4, Y - getYPosition(P4, 1)),  # 1st layer 3-4
+                    (x2, Y + se * abs(x2 - x1)),
+                    (x2, Y - getYPosition(P2, 1) + se * abs(x2 - x1)),  # 1st layer 1-2
+                    (x3, Y + se * abs(x3 - x1)),
+                    (x3, Y - getYPosition(P3, 1) + se * abs(x3 - x1)),
+                    (x4, Y + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),  # 1st layer 3-4
                     (x1, Y - getYPosition(P1, 1)),
                     (x1, Y - getYPosition(P1, 2)),
-                    (x2, Y - getYPosition(P2, 1)),
-                    (x2, Y - getYPosition(P2, 2)),  # 2nd layer 1-2
-                    (x3, Y - getYPosition(P3, 1)),
-                    (x3, Y - getYPosition(P3, 2)),
-                    (x4, Y - getYPosition(P4, 1)),
-                    (x4, Y - getYPosition(P4, 2)),  # 2nd layer 3-4
+                    (x2, Y - getYPosition(P2, 1) + se * abs(x2 - x1)),
+                    (x2, Y - getYPosition(P2, 2) + se * abs(x2 - x1)),  # 2nd layer 1-2
+                    (x3, Y - getYPosition(P3, 1) + se * abs(x3 - x1)),
+                    (x3, Y - getYPosition(P3, 2) + se * abs(x3 - x1)),
+                    (x4, Y - getYPosition(P4, 1) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 2) + se * abs(x4 - x1)),  # 2nd layer 3-4
                     (x1, Y - getYPosition(P1, 2)),
                     (x1, Y - getYPosition(P1, 3)),
-                    (x2, Y - getYPosition(P2, 2)),
-                    (x2, Y - getYPosition(P2, 3)),  # 3rd layer 1-2
-                    (x3, Y - getYPosition(P3, 2)),
-                    (x3, Y - getYPosition(P3, 3)),
-                    (x4, Y - getYPosition(P4, 2)),
-                    (x4, Y - getYPosition(P4, 3)),  # 3rd layer 3-4
+                    (x2, Y - getYPosition(P2, 2) + se * abs(x2 - x1)),
+                    (x2, Y - getYPosition(P2, 3) + se * abs(x2 - x1)),  # 3rd layer 1-2
+                    (x3, Y - getYPosition(P3, 2) + se * abs(x3 - x1)),
+                    (x3, Y - getYPosition(P3, 3) + se * abs(x3 - x1)),
+                    (x4, Y - getYPosition(P4, 2) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 3) + se * abs(x4 - x1)),  # 3rd layer 3-4
                     (x1, Y - getYPosition(P1, 3)),
                     (x1, Y - getYPosition(P1, 4)),
-                    (x2, Y - getYPosition(P2, 3)),
-                    (x2, Y - getYPosition(P2, 4)),  # 4th layer 1-2
-                    (x3, Y - getYPosition(P3, 3)),
-                    (x3, Y - getYPosition(P3, 4)),
-                    (x4, Y - getYPosition(P4, 3)),
-                    (x4, Y - getYPosition(P4, 4)),  # 4th layer 3-4
+                    (x2, Y - getYPosition(P2, 3) + se * abs(x2 - x1)),
+                    (x2, Y - getYPosition(P2, 4) + se * abs(x2 - x1)),  # 4th layer 1-2
+                    (x3, Y - getYPosition(P3, 3) + se * abs(x3 - x1)),
+                    (x3, Y - getYPosition(P3, 4) + se * abs(x3 - x1)),
+                    (x4, Y - getYPosition(P4, 3) + se * abs(x4 - x1)),
+                    (x4, Y - getYPosition(P4, 4) + se * abs(x4 - x1)),  # 4th layer 3-4
                 ]
             )
         else:
@@ -281,23 +287,23 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
 
 
 def calculateCoordinates(
-    distances: list, P1: list, P2: list, P3: list, P4: list, kms: list
+    distances: list, P1: list, P2: list, P3: list, P4: list, kms: list, se: float
 ):
     coordinates = []
     print("")
     i = 0
     for km in tqdm(kms, desc="Getting Coordinates...", ncols=100):
-        coordinates.append(getCoordinates(distances[i], P1[i], P2[i], P3[i], P4[i], km))
+        coordinates.append(getCoordinates(distances[i], P1[i], P2[i], P3[i], P4[i], km, se[i]))
         i += 1
-        time.sleep(0.01)
+        #time.sleep(0.001)
 
     return coordinates
 
 
 def main(filePath: str, side: str):
     df = readExcel(filePath)
-    distances, P1, P2, P3, P4, kms = readExcelData(filePath, df)
-    coordinates = calculateCoordinates(distances, P1, P2, P3, P4, kms)
+    distances, P1, P2, P3, P4, kms, se = readExcelData(filePath, df)
+    coordinates = calculateCoordinates(distances, P1, P2, P3, P4, kms, se)
     exportCoordinatesToExcel(coordinates, kms, side)
 
 

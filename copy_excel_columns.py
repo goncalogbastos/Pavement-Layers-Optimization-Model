@@ -31,6 +31,12 @@ def copy_excel_columns(source_file, target_file, source_columns, target_columns)
     target_wb.save(target_file)
 
 
+
+print("\n############################################")
+print('\nGetting data ready for analysis...')
+print("\n############################################")
+
+
 copy_excel_columns(
     "./output/layerSolutions_left.xlsx",
     "./src/layerSolutions_left_Civil.xlsx",

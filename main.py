@@ -11,6 +11,7 @@ ESP_MIN_CAMADA_ABGE = 0.11
 
 
 def readExcel(file: str):
+    print("\n############################################")
     print(f"\nChecking if the file {file} exists...")
     time.sleep(1)
     isFile = os.path.exists(file)
@@ -29,6 +30,7 @@ def readExcel(file: str):
 
 
 def readExcelData(file: str, df: pd.DataFrame):
+    print("\n############################################")
     print(f"\nLoading data from file...")
     time.sleep(1)
     points = []
@@ -478,6 +480,7 @@ def analyseLeftLayers(points: list, kms: list):
             rightSolutions.append([0] * 16)
 
         i += 1
+        #time.sleep(0.001)
 
     return leftSolutions, rightSolutions
 
