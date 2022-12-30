@@ -113,7 +113,10 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
         x1 = distances[0]
         x4 = distances[3]
 
-        if ZerosP1 == 2:
+        if (x1 == 0) | (x4 == 0):
+            pass
+
+        elif ZerosP1 == 2:
             coordinates.append(
                 [
                     (x1, Y),
@@ -247,7 +250,7 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
                     (x1, Y - getYPosition(P1, 2)),
                     (x2, Y - getYPosition(P2, 1)),
                     (x2, Y - getYPosition(P2, 2)),  # 2nd layer 1-2
-                    (x3, Y - getYPosition(P3, 2)),
+                    (x3, Y - getYPosition(P3, 1)),
                     (x3, Y - getYPosition(P3, 2)),
                     (x4, Y - getYPosition(P4, 1)),
                     (x4, Y - getYPosition(P4, 2)),  # 2nd layer 3-4
