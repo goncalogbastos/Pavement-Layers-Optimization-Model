@@ -132,7 +132,8 @@ def calculateNonConstantLayers(e4, e3, e2, e1):
         n = 2
         run = True
         while run:
-            N1 = N4 = n - 1
+            N1 = n - 1
+            N4 = n - 1
             R1 = e1 / n
             R4 = e4 / n
             t = e1 / n
@@ -143,6 +144,7 @@ def calculateNonConstantLayers(e4, e3, e2, e1):
                 & (round(t, 2) >= ESP_MIN_CAMADA_ABGE)
                 & (round(t_, 2) >= ESP_MIN_CAMADA_ABGE)
             ):
+                print(t,t_)
                 run = False
             else:
                 n += 1
@@ -384,7 +386,7 @@ def optimizeLayersTwoPoints(e4, e3, e2, e1):
     )
 
 
-def optimizeLeftLayersFourPoints(e4, e3, e2, e1):
+def optimizeLayersFourPoints(e4, e3, e2, e1):
     N1, R1, N2, R2, tA, tB = optimizeLayersTwoPoints(e2, 0, 0, e1)
     N3, R3, N4, R4, tC, tD = optimizeLayersTwoPoints(e4, 0, 0, e3)
     return (
@@ -403,13 +405,14 @@ def optimizeLeftLayersFourPoints(e4, e3, e2, e1):
     )
 
 
-def analyseLeftLayers(points: list, kms: list):
+def analyseLayers(points: list, kms: list):
     leftSolutions = []
     rightSolutions = []
     i = 0
 
     print("")
     for p in tqdm(points, desc="Analysing layers...", ncols=100):
+        print(kms[i])
         leftSituation = checkSituation(p[0], p[1], p[2], p[3])
         rightSituation = checkSituation(p[7], p[6], p[5], p[4])
 
@@ -435,7 +438,7 @@ def analyseLeftLayers(points: list, kms: list):
                 R4,
                 tC,
                 tD,
-            ) = optimizeLeftLayersFourPoints(p[0], p[1], p[2], p[3])
+            ) = optimizeLayersFourPoints(p[0], p[1], p[2], p[3])
             layers = convertFourPointsToFinalLayers(
                 N1, R1, N2, R2, tA, tB, N3, R3, N4, R4, tC, tD
             )
@@ -468,7 +471,7 @@ def analyseLeftLayers(points: list, kms: list):
                 R4,
                 tC,
                 tD,
-            ) = optimizeLeftLayersFourPoints(p[7], p[6], p[5], p[4])
+            ) = optimizeLayersFourPoints(p[7], p[6], p[5], p[4])
             layers = convertFourPointsToFinalLayers(
                 N1, R1, N2, R2, tA, tB, N3, R3, N4, R4, tC, tD
             )
@@ -488,7 +491,7 @@ def analyseLeftLayers(points: list, kms: list):
 def main(file: str):
     df = readExcel(file)
     points, kms = readExcelData(file, df)
-    leftSolutions, rightSolutions = analyseLeftLayers(points, kms)
+    leftSolutions, rightSolutions = analyseLayers(points, kms)
     exportSolutionsToExcel(leftSolutions, kms, "left")
     exportSolutionsToExcel(rightSolutions, kms, "right")
 
