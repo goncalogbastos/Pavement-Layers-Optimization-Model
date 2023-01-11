@@ -35,6 +35,7 @@ def readExcelData(file: str, df: pd.DataFrame):
     kms = []
     distances = []
     se = []
+    
     try:
         for _, r in df.iterrows():
             row_distances = [r.L1, r.L2, r.L3, r.L4]
@@ -303,6 +304,7 @@ def calculateCoordinates(
 def main(filePath: str, side: str):
     df = readExcel(filePath)
     distances, P1, P2, P3, P4, kms, se = readExcelData(filePath, df)
+    print(distances)
     coordinates = calculateCoordinates(distances, P1, P2, P3, P4, kms, se)
     exportCoordinatesToExcel(coordinates, kms, side)
 

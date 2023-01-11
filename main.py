@@ -144,11 +144,11 @@ def calculateNonConstantLayers(e4, e3, e2, e1):
                 & (round(t, 2) >= ESP_MIN_CAMADA_ABGE)
                 & (round(t_, 2) >= ESP_MIN_CAMADA_ABGE)
             ):
-                print(t,t_)
+               
                 run = False
             else:
                 n += 1
-                print(n)
+                
         return (
             round(N1, 2),
             round(R1, 2),
@@ -411,8 +411,7 @@ def analyseLayers(points: list, kms: list):
     i = 0
 
     print("")
-    for p in tqdm(points, desc="Analysing layers...", ncols=100):
-        print(kms[i])
+    for p in tqdm(points, desc="Analysing layers...", ncols=100):        
         leftSituation = checkSituation(p[0], p[1], p[2], p[3])
         rightSituation = checkSituation(p[7], p[6], p[5], p[4])
 
