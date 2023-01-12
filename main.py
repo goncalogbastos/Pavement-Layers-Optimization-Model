@@ -7,7 +7,7 @@ from tqdm import tqdm
 
 ESP_MIN_TOTAL_ABGE = 0.25
 ESP_MAX_CAMADA_ABGE = 0.30
-ESP_MIN_CAMADA_ABGE = 0.11
+ESP_MIN_CAMADA_ABGE = 0.12
 
 
 def readExcel(file: str):

@@ -303,8 +303,7 @@ def calculateCoordinates(
 
 def main(filePath: str, side: str):
     df = readExcel(filePath)
-    distances, P1, P2, P3, P4, kms, se = readExcelData(filePath, df)
-    print(distances)
+    distances, P1, P2, P3, P4, kms, se = readExcelData(filePath, df)    
     coordinates = calculateCoordinates(distances, P1, P2, P3, P4, kms, se)
     exportCoordinatesToExcel(coordinates, kms, side)
 
