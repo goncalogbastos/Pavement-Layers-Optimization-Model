@@ -321,7 +321,90 @@ def convertFourPointsToFinalLayers(N1, R1, N2, R2, tA, tB, N3, R3, N4, R4, tC, t
     ]
     return layers
 
+'''
+def optimizeLayersTwoPoints(e4, e3, e2, e1):
+    t = ESP_MIN_CAMADA_ABGE
+    t_ = 0
 
+    
+    NT1 = 0
+    NT4 = 1
+
+    while NT1 != NT4:
+        print("A")
+        print(t)
+        NT1 = totalNumberOfLayers(e1, t)
+        NT4 = totalNumberOfLayers(e4, t)
+        N1, R1, N4, R4 = calculateNumberLayers(e1, e4, t)
+
+        if (NT1 == NT4):
+            if (round(R1,2) >= ESP_MIN_CAMADA_ABGE) & (round(R4,2) >= ESP_MIN_CAMADA_ABGE):
+                return (
+                    round(N1, 2),
+                    round(R1, 2),
+                    round(N4, 2),
+                    round(R4, 2),
+                    round(t, 2),
+                    round(t_, 2),
+                )
+            else:
+                NT1 = 0
+                NT1 = 1
+
+        
+
+        if t > ESP_MAX_CAMADA_ABGE:
+            t = ESP_MIN_CAMADA_ABGE
+            run = True
+            while run:
+                print("B")
+                print(t)
+                NT1 = totalNumberOfLayers(e1, t)
+                NT4 = totalNumberOfLayers(e4, t)
+
+                if NT1 > NT4:
+                    DIF = NT1 - NT4
+                    if NT4 - DIF > 0:
+                        N1 = NT1 - DIF
+                        R1 = DIF * t
+                        N4 = DIF
+                        R4 = t
+                        if (round(R1,2) >= ESP_MIN_CAMADA_ABGE) & (round(R4,2) >= ESP_MIN_CAMADA_ABGE):
+                            return (
+                                round(N1, 2),
+                                round(R1, 2),
+                                round(N4, 2),
+                                round(R4, 2),
+                                round(t, 2),
+                                round(t_, 2),
+                            )
+                        
+                else:
+                    DIF = NT4 -NT1
+                    if NT1 - DIF > 0:
+                        N1 = DIF
+                        R1 = t
+                        N4 = NT4 - DIF
+                        R4 = DIF * t
+                        if (round(R1,2) >= ESP_MIN_CAMADA_ABGE) & (round(R4,2) >= ESP_MIN_CAMADA_ABGE):
+                            return (
+                                round(N1, 2),
+                                round(R1, 2),
+                                round(N4, 2),
+                                round(R4, 2),
+                                round(t, 2),
+                                round(t_, 2),
+                            )
+                
+                if t > ESP_MAX_CAMADA_ABGE:
+                    return 0,0,0,0,0,0
+
+                t += 0.01
+
+
+        t += 0.01
+
+'''
 def optimizeLayersTwoPoints(e4, e3, e2, e1):
 
     t = ESP_MIN_CAMADA_ABGE
@@ -339,7 +422,7 @@ def optimizeLayersTwoPoints(e4, e3, e2, e1):
             ):
                 NT1 = 0
                 NT4 = 1
-            else:
+            else:               
                 return (
                     round(N1, 2),
                     round(R1, 2),
@@ -359,7 +442,8 @@ def optimizeLayersTwoPoints(e4, e3, e2, e1):
             N1, R1, N4, R4 = calculateNumberLayers(e1, e4, t)
             N1_ = N1 - 1
             N4_ = N4 - 1
-            N1 = N4 = 1
+            N1 = 1
+            N4 = 1
             R1 = float(N1_) * t + float(R1)
             R4 = float(N4_) * t + float(R4)
 
@@ -411,7 +495,8 @@ def analyseLayers(points: list, kms: list):
     i = 0
 
     print("")
-    for p in tqdm(points, desc="Analysing layers...", ncols=100):        
+    for p in tqdm(points, desc="Analysing layers...", ncols=100): 
+        print(kms[i])       
         leftSituation = checkSituation(p[0], p[1], p[2], p[3])
         rightSituation = checkSituation(p[7], p[6], p[5], p[4])
 

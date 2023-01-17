@@ -4,6 +4,8 @@ import os
 from decimal import Decimal as D
 from tqdm import tqdm
 
+ESP_CAMADAS_BET = 0.28
+
 
 def readExcel(file: str):
     print("\n############################################")
@@ -89,18 +91,6 @@ def exportCoordinatesToExcel(coordinates: list, kms: list, side: str):
         print(f"\nThe file {fileName} containing the coordinates was created.")
         time.sleep(1)
 
-
-def getXPosition(km: int):
-    pass
-
-def getYPosition(km: int):
-    pass
-
-
-def getInitialY_OffsetPosition(km: int):
-    return (km - 43000) / 25
-
-
 def getYPosition(pointValues: list, k: int):
     return sum(pointValues[:k])
 
@@ -119,8 +109,7 @@ def getCoordinates(distances: list, P1: list, P2: list, P3: list, P4: list, km: 
     ZerosP4 = P4.count(0)
 
     se = float(se)
-    #Y = getInitialY_OffsetPosition(km)
-    Y = Y - 0.28
+    Y = Y - ESP_CAMADAS_BET
 
     if isZeroP1:
         coordinates.append([0])
